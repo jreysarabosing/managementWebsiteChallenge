@@ -2,6 +2,21 @@
 	require_once 'db_connect.php';
 	$result = pg_query($dbconn, "SELECT * FROM users");
 	$birthdate = pg_query($dbconn, "SELECT TO_CHAR(birthdate, 'Month dd, yyyy') FROM users");
+	if(isset($_POST['submitAdd'])){
+		$first_name = $_POST['firstname'];
+		$last_name = $_POST['lastname'];
+		$middle_name = $_POST['middlename'];
+		$gender = $_POST['gender'];
+		$birthdate = $_POST['birthdate'];
+		$status = $_POST['status'];
+		$email = $_POST['email'];
+		$contact_no = $_POST['contactno'];
+		$sql = "INSERT INTO users (first_name,last_name,middle_name,gender,birthdate,status,email,contact_no) VALUES ('$first_name','$last_name','$middle_name','$gender', '$birthdate','$status','$email','$contact_no')";
+	  if(pg_query($dbconn,$sql)){
+      header("Location: index.php");
+    }
+	}
+	pg_close($dbconn);
 ?>
 <!DOCTYPE html>
 <html>
@@ -48,7 +63,7 @@
 						</button>
 					</div>
 					<div class="modal-body">
-						<form action="add_user.php" method="POST">
+						<form action="index.php" method="POST">
 							<div class="form-group">
 								<div class="input-group">
 									<div class="input-group-prepend">
@@ -78,8 +93,8 @@
 									<div class="input-group-prepend">
 										<span class="input-group-text">Gender</span>
 									</div>
-									<select class="custom-select" name="status" required>
-										<option selected>Select...</option>
+									<select class="custom-select" name="gender" required>
+										<option selected disabled>Select...</option>
 										<option value="Male">Male</option>
 										<option value="Female">Female</option>
 									</select>
@@ -99,7 +114,7 @@
 										<span class="input-group-text">Status</span>
 									</div>
 									<select name="status" class="custom-select" required>
-										<option selected>Select...</option>
+										<option selected disabled>Select...</option>
 										<option value="Single">Single</option>
 										<option value="Married">Married</option>
 										<option value="Divorced">Divorced</option>
@@ -126,7 +141,7 @@
 							</div>
 					</div>
 					<div class="modal-footer">
-						<input type="submit" href="add_user.php" class="btn btn-primary" value="Submit">
+						<input type="submit" class="btn btn-primary" value="Submit" name="submitAdd">
 						</form>
 					</div>
 				</div>
@@ -161,9 +176,103 @@
 						<td class="custom-center"><?php echo $row["contact_no"]; ?></td>
 						<td class="custom-center">
 							<div class="btn-group-sm btn-group">
-								<a role="button" href="update_user.php?id=<?php echo $row["user_id"]; ?>" class="btn btn-outline-warning">Update</a>
-								<a role="button" href="delete_user.php?id=<?php echo $row["user_id"]; ?>" class="btn btn-outline-danger">Delete</a>
+								<input role="button" type="button" data-target="#userModModal" data-toggle="modal" class="btn btn-outline-warning" value="Update">
+								<input role="button" type="button" ="delete_user.php?id=<?php echo $row["user_id"]; ?>" class="btn btn-outline-danger" value="Delete">
 							</div>
+							<div class="modal fade" id="userModModal" tabindex="-1" role="dialog" aria-labelledby="userAddModalLabel" aria-hidden="true">
+									<div class="modal-dialog modal-dialog-centered" role="document">
+										<div class="modal-content">
+											<div class="modal-header">
+												<h3 class="modal-title" id="userAddModalLabel">Add User Data</h3>
+												<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+													<span aria-hidden="true">&times;</span>
+												</button>
+											</div>
+											<div class="modal-body">
+												<form action="update_user.php?id=<?php echo $row["user_id"]; ?>" method="POST">
+													<div class="form-group">
+														<div class="input-group">
+															<div class="input-group-prepend">
+																<span class="input-group-text">First Name</span>
+															</div>
+															<input type="text" class="form-control" name="firstname" placeholder="John/Jane" required/>
+														</div>
+													</div>
+													<div class="form-group">
+														<div class="input-group">
+															<div class="input-group-prepend">
+																<span class="input-group-text">Last Name</span>
+															</div>
+															<input type="text" class="form-control" name="lastname" placeholder="Doe" required/>
+														</div>
+													</div>
+													<div class="form-group">
+														<div class="input-group">
+															<div class="input-group-prepend">
+																<span class="input-group-text">Middle Name</span>
+															</div>
+															<input type="text" class="form-control" name="middlename" placeholder="Louis" required/>
+														</div>
+													</div>
+													<div class="form-group">
+														<div class="input-group">
+															<div class="input-group-prepend">
+																<span class="input-group-text">Gender</span>
+															</div>
+															<select class="custom-select" name="gender" required>
+																<option selected>Select...</option>
+																<option value="Male">Male</option>
+																<option value="Female">Female</option>
+															</select>
+														</div>
+													</div>
+													<div class="form-group">
+														<div class="input-group">
+															<div class="input-group-prepend">
+																<span class="input-group-text">Birthdate</span>
+															</div>
+															<input type="date" class="form-control" name="birthdate" required>
+														</div>
+													</div>
+													<div class="form-group">
+														<div class="input-group">
+															<div class="input-group-prepend">
+																<span class="input-group-text">Status</span>
+															</div>
+															<select name="status" class="custom-select" required>
+																<option selected>Select...</option>
+																<option value="Single">Single</option>
+																<option value="Married">Married</option>
+																<option value="Divorced">Divorced</option>
+																<option value="Separated">Separated</option>
+																<option value="Widowed">Widowed</option>
+															</select>
+														</div>
+													</div>
+													<div class="form-group">
+														<div class="input-group">
+															<div class="input-group-prepend">
+																<span class="input-group-text">Email</span>
+															</div>
+															<input type="email" class="form-control" name="email" placeholder="name@example.com" required>
+														</div>
+													</div>
+													<div class="form-group">
+														<div class="input-group">
+															<div class="input-group-prepend">
+																<span class="input-group-text">Contact No.</span>
+															</div>
+															<input type="tel" class="form-control" name="contactno" placeholder="09012345678" required>
+														</div>
+													</div>
+											</div>
+											<div class="modal-footer">
+												<input type="submit" class="btn btn-primary" value="Submit" name="submitMod">
+												</form>
+											</div>
+										</div>
+									</div>
+								</div>
 						</td>
 					</tr>
 					<?php } ?>
